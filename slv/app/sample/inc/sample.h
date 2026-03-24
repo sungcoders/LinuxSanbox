@@ -2,7 +2,7 @@
 #define SAMPLE_H
 
 #include <iostream>
-#include "Log.h"
+#include "UtilsLog.h"
 
 class sample
 {

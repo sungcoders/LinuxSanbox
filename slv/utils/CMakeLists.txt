@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 add_library(utils SHARED
-    src/Log.cpp
+    src/UtilsLog.cpp
 )
 
 # Export header
