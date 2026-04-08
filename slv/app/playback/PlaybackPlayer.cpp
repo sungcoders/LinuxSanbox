@@ -36,7 +36,7 @@ void PlaybackPlayer::start()
 
 void PlaybackPlayer::outPutView()
 {
-    win.createWindow(1920, 1044);
+    win.createWindow(1920, 1080);
     while(!m_bIsExit.load())
     {
         handleEvent();

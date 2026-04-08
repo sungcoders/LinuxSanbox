@@ -24,6 +24,9 @@ private:
     SDL_Renderer* renderer = nullptr;
     SDL_Texture* texture = nullptr;
     SDL_Rect m_button;
+    SDL_Rect m_point;
+    SDL_Rect m_timelinebar;
+    SDL_Rect m_timelineprogress;
     std::atomic<bool> m_bIsPaused;
     // int winWidth;
     // int winHeight;

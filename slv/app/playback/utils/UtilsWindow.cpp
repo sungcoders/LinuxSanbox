@@ -65,16 +65,9 @@ void UtilsWindow::drawNextIcon(SDL_Renderer* renderer, int x, int y)
     SDL_RenderDrawLine(renderer, x + 45, y, x + 45, y + 40);
 }
 
-void drawTimeline(SDL_Renderer* renderer, SDL_Rect bar, float progress)
+void UtilsWindow::drawTimeline(SDL_Renderer* renderer, const SDL_Rect& box, const SDLColor& color)
 {
-    // background
-    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-    SDL_RenderFillRect(renderer, &bar);
-
-    // progress
-    SDL_Rect progressRect = bar;
-    progressRect.w = bar.w * progress;
-
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderFillRect(renderer, &progressRect);
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderFillRect(renderer, &box);
+    SDL_RenderDrawRect(renderer, &box);
 }
