@@ -3,8 +3,8 @@
 # =============================
 # Config default
 # =============================
-DEFAULT_IMAGE="docker-pios"
-DEFAULT_CONTAINER="docker-pios-container"
+DEFAULT_IMAGE="linux-sanbox"
+DEFAULT_CONTAINER="linux-sanbox-container"
 WORKSPACE_HOST="$(cd "$(pwd)/.." && pwd)"
 WORKSPACE_CONT="/workspace"
 DOCKERFILE="Dockerfile"
@@ -38,11 +38,18 @@ EOF
 run_container() {
     CONTAINER_NAME=$DEFAULT_CONTAINER
     IMAGE_NAME=$DEFAULT_IMAGE
+
     echo "running container: $CONTAINER_NAME (image: $IMAGE_NAME) build context: $WORKSPACE_HOST"
     docker run -it --rm \
         --name "$CONTAINER_NAME" \
         -v "$WORKSPACE_HOST":"$WORKSPACE_CONT" \
         -w "$WORKSPACE_CONT" \
+        --device /dev/snd \
+        -e XDG_RUNTIME_DIR=/run/user/$(id -u) \
+        -v /run/user/$(id -u):/run/user/$(id -u) \
+        -e SDL_AUDIODRIVER=pulseaudio \
+        -e DISPLAY=$DISPLAY \
+        -v /tmp/.X11-unix:/tmp/.X11-unix \
         "$IMAGE_NAME" \
         /bin/bash
 }
