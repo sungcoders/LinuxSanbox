@@ -7,3 +7,4 @@
 add_subdirectory(hello)
 add_subdirectory(sample)
 add_subdirectory(playback)
+add_subdirectory(socket)

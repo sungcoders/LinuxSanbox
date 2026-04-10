@@ -54,4 +54,5 @@ target_link_libraries(${PROJECT_NAME}
     ${SDL2_LIBRARIES}
     swresample
     utils
+    Live555
 )
