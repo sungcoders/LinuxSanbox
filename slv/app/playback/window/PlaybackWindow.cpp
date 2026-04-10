@@ -62,21 +62,24 @@ void PlaybackWindow::renderFrame(AVFrame* frame)
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
 
-    m_button = {50, 990, 85, 50};
-    m_point = {750, 1045, 20, 20};
-    m_timelinebar = {50, 1050, 1820, 10};
-    m_timelineprogress = {50, 1050, 700, 10};
+    if(isHoldBar())
+    {
+        m_button = {50, 990, 85, 50};
+        m_point = {750, 1045, 20, 20};
+        m_timelinebar = {50, 1050, 1820, 10};
+        m_timelineprogress = {50, 1050, 700, 10};
 
-    // Icon pause/resume
-    if (m_bIsPaused.load()) utilsWindow.drawPlayIcon(renderer, m_button);
-    else                    utilsWindow.drawPauseIcon(renderer, m_button);
-    
-    // timeline bar
-    SDLColor sWhite = {255, 255, 255, 255};
-    SDLColor sDarkBlue = {0, 0, 255, 255};
-    utilsWindow.drawTimeline(renderer, m_timelinebar, sWhite);
-    utilsWindow.drawTimeline(renderer, m_timelineprogress, sDarkBlue);
-    utilsWindow.drawTimeline(renderer, m_point, sDarkBlue);
+        // Icon pause/resume
+        if (m_bIsPaused.load()) utilsWindow.drawPlayIcon(renderer, m_button);
+        else                    utilsWindow.drawPauseIcon(renderer, m_button);
+        
+        // timeline bar
+        SDLColor sWhite = {255, 255, 255, 255};
+        SDLColor sDarkBlue = {0, 0, 255, 255};
+        utilsWindow.drawTimeline(renderer, m_timelinebar, sWhite);
+        utilsWindow.drawTimeline(renderer, m_timelineprogress, sDarkBlue);
+        utilsWindow.drawTimeline(renderer, m_point, sDarkBlue);
+    }
 
     SDL_RenderPresent(renderer);
 }
@@ -107,7 +110,11 @@ void PlaybackWindow::WindowEvent(SDL_Event& eventType)
 {
     while (SDL_PollEvent(&event))
     {
-        // LOGI("-------------------- Received event: {} --------------------", event.type);
+        if(event.type != 1024)
+        {
+            LOGI("-------------------- Received event: {} --------------------", event.type);
+        }
+
         eventType = event;
         if(event.type == SDL_MOUSEBUTTONDOWN)
         {
@@ -131,4 +138,9 @@ void PlaybackWindow::WindowEvent(SDL_Event& eventType)
 bool PlaybackWindow::isPaused()
 {
     return m_bIsPaused.load();
+}
+
+bool PlaybackWindow::isHoldBar()
+{
+    // uitl time check time mouse is not in screen 100ms
 }

@@ -16,6 +16,7 @@ public:
     void delay(int ms);
     void destroyWindow();
     bool isPaused();
+    bool isHoldBar();
 
     void WindowEvent(SDL_Event& eventType);
     
