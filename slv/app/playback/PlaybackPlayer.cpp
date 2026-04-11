@@ -37,7 +37,11 @@ void PlaybackPlayer::start()
 
 void PlaybackPlayer::outPutView()
 {
+    PlaybackInfo sInfo{};
+    m_pCClock->getPlaybackInfo(sInfo);
+    win.setTotalTimehBar(sInfo.iLength);
     win.createWindow(1920, 1080);
+
     while(!m_bIsExit.load())
     {
         handleEvent();

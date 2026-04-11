@@ -69,8 +69,12 @@ void PlaybackDemux::Init(const std::string& filename)
 
     av_dump_format(m_fmtCtx, 0, filename.c_str(), 0);
     
-    LOGE("lengh video {}",m_fmtCtx->duration / AV_TIME_BASE );
-    LOGE("Resolution: {}x{}", codecParVideo->width, codecParVideo->height);
+    PlaybackInfo sInfo{
+        m_fmtCtx->duration / AV_TIME_BASE,
+        codecParVideo->width,
+        codecParVideo->height
+    };
+    m_pCClock->setPlaybackInfo(sInfo);
 }
 
 void PlaybackDemux::Demux(void)
