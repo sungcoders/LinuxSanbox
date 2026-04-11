@@ -71,8 +71,15 @@ void PlaybackPlayer::handleEvent()
         LOGI("Key down event: {}", event.key.keysym.sym);
         return;
     case SDL_MOUSEBUTTONDOWN:
+        int64_t sec = -1;
+        sec = win.getTimeSeek();
         if(win.isPaused()) { Pause();  }
         else               { Resume(); }
+        if(sec != -1)
+        {
+            LOGD("Seek to pos = {}", sec);
+            Seek(sec);
+        }
         return;
     }
 }

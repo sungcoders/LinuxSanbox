@@ -19,6 +19,7 @@ public:
     void destroyWindow();
     bool isPaused();
     bool isHoldBar();
+    int getTimeSeek();
 
     void WindowEvent(SDL_Event& eventType);
     
@@ -31,6 +32,7 @@ private:
     SDL_Rect m_timelinebar;
     SDL_Rect m_timelineprogress;
     std::atomic<bool> m_bIsPaused;
+    std::atomic<int> m_iTimeSeek;
     SDL_Event event;
     std::thread eventThread;
     UtilsWindow utilsWindow;

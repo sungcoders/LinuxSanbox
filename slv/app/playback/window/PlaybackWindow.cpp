@@ -5,6 +5,7 @@ PlaybackWindow::PlaybackWindow()
 , renderer(nullptr)
 , texture(nullptr)
 , m_bIsPaused(false)
+, m_iTimeSeek(-1)
 {
 }
 
@@ -68,11 +69,11 @@ void PlaybackWindow::renderFrame(const FrameInfo& sframe)
 
 void PlaybackWindow::renderBar(SDL_Renderer* renderer, double pos, int lengh)
 {
-    // 1820  -- x
+    // 1750  -- x
     // lengh -- pos
-    // x = pos * 1820 / lengh
+    // x = pos * 1750 / lengh
     // propose: rate = 1/length
-    // x = pos * 1082 * rate
+    // x = pos * 1750 * rate
     int xPos = std::floor(pos * 1750 / lengh);
     m_button = {50, 1030, 60, 40};
     m_point = {xPos+120, 1040, 20, 20};
@@ -139,6 +140,14 @@ void PlaybackWindow::WindowEvent(SDL_Event& eventType)
                 m_bIsPaused.store(!m_bIsPaused.load());
                 LOGI("Pause button clicked, new state: {}", m_bIsPaused.load());
             }
+            else if (utilsWindow.isInsideArea(event.button.x, event.button.y, m_timelinebar))
+            {
+                int length = 1750;
+                double ratio = (double)(event.button.x - 120) / length;
+                int sec = ratio * 435;
+                m_iTimeSeek.store(sec);
+                LOGI("bar timeline clicked x:{}, y:{}, lenght={}, sec={}", event.button.x, event.button.y, length, sec);
+            }
         }
         // if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
         // {
@@ -160,4 +169,11 @@ bool PlaybackWindow::isHoldBar()
 {
     // uitl time check time mouse is not in screen 100ms
     return true;
+}
+
+int PlaybackWindow::getTimeSeek()
+{
+    int iseek = m_iTimeSeek.load();
+    m_iTimeSeek.store(-1);
+    return iseek;
 }
