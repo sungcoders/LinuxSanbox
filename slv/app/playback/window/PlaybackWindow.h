@@ -14,6 +14,7 @@ public:
     void renderFrame(const FrameInfo& sframe);
     void resizeWindow(int width, int height);
     void delay(int ms);
+    void setTotalTimehBar(int length);
     void renderBar(SDL_Renderer* renderer, double pos, int lengh);
     void drawTimelineBackground(SDL_Renderer* renderer);
     void destroyWindow();
@@ -31,8 +32,10 @@ private:
     SDL_Rect m_point;
     SDL_Rect m_timelinebar;
     SDL_Rect m_timelineprogress;
+    SDL_Rect m_panel;
     std::atomic<bool> m_bIsPaused;
     std::atomic<int> m_iTimeSeek;
+    std::atomic<int> m_iLengthVideo;
     SDL_Event event;
     std::thread eventThread;
     UtilsWindow utilsWindow;
