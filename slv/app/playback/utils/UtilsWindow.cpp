@@ -8,19 +8,6 @@ UtilsWindow::~UtilsWindow()
 {
 }
 
-void UtilsWindow::drawButton(SDL_Rect& button, ButtonInfo& info)
-{
-    button = {info.x, info.y, info.width, info.height};
-}
-
-void UtilsWindow::renderButton(SDL_Renderer* renderer, SDL_Rect& buttonRect, bool isPaused)
-{
-    if (isPaused) SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // {render, r, g, b, a} đỏ
-    else          SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255); // {render, r, g, b, a} xanh
-
-    SDL_RenderFillRect(renderer, &buttonRect);
-}
-
 bool UtilsWindow::isInsideArea(int mouseX, int mouseY, SDL_Rect& buttonRect)
 {
     return (mouseX >= buttonRect.x && mouseX <= buttonRect.x + buttonRect.w &&
@@ -30,20 +17,35 @@ bool UtilsWindow::isInsideArea(int mouseX, int mouseY, SDL_Rect& buttonRect)
 void UtilsWindow::drawPlayIcon(SDL_Renderer* renderer, const SDL_Rect& box)
 {
     SDL_RenderDrawRect(renderer, &box);
-    int x = box.x + 30;
-    int y = box.y + 5;
-    SDL_RenderDrawLine(renderer, x, y, x, y + 40);
-    SDL_RenderDrawLine(renderer, x, y, x + 30, y + 20);
-    SDL_RenderDrawLine(renderer, x, y + 40, x + 30, y + 20);
+    int w = 25;             // width
+    int h = 20;             // height
+    int x = box.x + 15;     // x position
+    int y = box.y + 10;     // y position
+
+    SDL_Point p1 = {x, y};
+    SDL_Point p2 = {x, y + h};
+    SDL_Point p3 = {x + w, y + h / 2};
+
+    SDL_RenderDrawLine(renderer, p1.x, p1.y, p2.x, p2.y);
+    SDL_RenderDrawLine(renderer, p2.x, p2.y, p3.x, p3.y);
+    SDL_RenderDrawLine(renderer, p3.x, p3.y, p1.x, p1.y);
 }
 
 void UtilsWindow::drawPauseIcon(SDL_Renderer* renderer, const SDL_Rect& box)
 {
     SDL_RenderDrawRect(renderer, &box);
-    int x = box.x + 30;
-    int y = box.y + 5;
-    SDL_Rect left = {x, y, 5, 40};
-    SDL_Rect right = {x + 20, y, 5, 40};
+
+    int barWidth = box.w * 0.15;   // 15% width
+    int gap      = box.w * 0.10;   // 10% distance
+
+    int totalWidth = 2 * barWidth + gap;
+
+    int startX = box.x + (box.w - totalWidth) / 2;  // blance
+    int startY = box.y + box.h * 0.2;               // 2% height
+    int barH   = box.h * 0.6;                       // 6% height
+
+    SDL_Rect left  = {startX, startY, barWidth, barH};
+    SDL_Rect right = {startX + barWidth + gap, startY, barWidth, barH};
 
     SDL_RenderFillRect(renderer, &left);
     SDL_RenderFillRect(renderer, &right);

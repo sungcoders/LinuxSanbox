@@ -3,6 +3,13 @@
 
 #include <atomic>
 
+struct PlaybackInfo
+{
+    int iLength;
+    int iHResolution;
+    int iWResolution;
+};
+
 class PlaybackClock
 {
 public:

@@ -43,14 +43,14 @@ void PlaybackPlayer::outPutView()
         handleEvent();
         if(m_pCClock->isPaused())
         {
-            win.renderFrame(m_pCFrameVideo->getLastFrame()->frame);
+            win.renderFrame(m_pCFrameVideo->getLastFrame());
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
         FrameInfo sFrame = {};
         m_pCFrameVideo->pop(sFrame);
         // LOGE("video timstamp: {:.3f}s", sFrame.timestamp);
-        win.renderFrame(sFrame.frame);
+        win.renderFrame(sFrame);
         win.delay(40);
         av_frame_free(&sFrame.frame);
     }

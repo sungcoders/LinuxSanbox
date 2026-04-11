@@ -5,8 +5,6 @@ PlaybackWindow::PlaybackWindow()
 , renderer(nullptr)
 , texture(nullptr)
 , m_bIsPaused(false)
-// , winWidth(0)
-// , winHeight(0)
 {
 }
 
@@ -37,9 +35,6 @@ void PlaybackWindow::createWindow(int width, int height)
         width,
         height
     );
-
-    // winWidth = width;
-    // winHeight = height;
 }
 
 void PlaybackWindow::resizeWindow(int width, int height)
@@ -50,38 +45,59 @@ void PlaybackWindow::resizeWindow(int width, int height)
     }
 }
 
-void PlaybackWindow::renderFrame(AVFrame* frame)
+void PlaybackWindow::renderFrame(const FrameInfo& sframe)
 {
     SDL_UpdateYUVTexture(
         texture,
         NULL,
-        frame->data[0], frame->linesize[0],
-        frame->data[1], frame->linesize[1],
-        frame->data[2], frame->linesize[2]
+        sframe.frame->data[0], sframe.frame->linesize[0],
+        sframe.frame->data[1], sframe.frame->linesize[1],
+        sframe.frame->data[2], sframe.frame->linesize[2]
     );
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
 
     if(isHoldBar())
     {
-        m_button = {50, 990, 85, 50};
-        m_point = {750, 1045, 20, 20};
-        m_timelinebar = {50, 1050, 1820, 10};
-        m_timelineprogress = {50, 1050, 700, 10};
-
-        // Icon pause/resume
-        if (m_bIsPaused.load()) utilsWindow.drawPlayIcon(renderer, m_button);
-        else                    utilsWindow.drawPauseIcon(renderer, m_button);
-        
-        // timeline bar
-        SDLColor sWhite = {255, 255, 255, 255};
-        SDLColor sDarkBlue = {0, 0, 255, 255};
-        utilsWindow.drawTimeline(renderer, m_timelinebar, sWhite);
-        utilsWindow.drawTimeline(renderer, m_timelineprogress, sDarkBlue);
-        utilsWindow.drawTimeline(renderer, m_point, sDarkBlue);
+        drawTimelineBackground(renderer);
+        renderBar(renderer, sframe.timestamp, 435);
     }
 
     SDL_RenderPresent(renderer);
+}
+
+void PlaybackWindow::renderBar(SDL_Renderer* renderer, double pos, int lengh)
+{
+    // 1820  -- x
+    // lengh -- pos
+    // x = pos * 1820 / lengh
+    // propose: rate = 1/length
+    // x = pos * 1082 * rate
+    int xPos = std::floor(pos * 1750 / lengh);
+    m_button = {50, 1030, 60, 40};
+    m_point = {xPos+120, 1040, 20, 20};
+    m_timelinebar = {120, 1045, 1750, 10};
+    m_timelineprogress = {120, 1045, xPos, 10};
+
+    // Icon pause/resume
+    if (m_bIsPaused.load()) utilsWindow.drawPlayIcon(renderer, m_button);
+    else                    utilsWindow.drawPauseIcon(renderer, m_button);
+    
+    // timeline bar
+    SDLColor sWhite = {255, 255, 255, 255};
+    SDLColor sDarkBlue = {0, 0, 255, 255};
+    utilsWindow.drawTimeline(renderer, m_timelinebar, sWhite);
+    utilsWindow.drawTimeline(renderer, m_timelineprogress, sDarkBlue);
+    utilsWindow.drawTimeline(renderer, m_point, sDarkBlue);
+}
+
+void PlaybackWindow::drawTimelineBackground(SDL_Renderer* renderer)
+{
+    SDL_Rect panel = {40, 1025, 1840, 50};
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
+    SDL_RenderFillRect(renderer, &panel);
 }
 
 void PlaybackWindow::delay(int ms)

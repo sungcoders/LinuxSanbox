@@ -27,7 +27,7 @@ public:
 
     void push(FrameInfo& sFrame);
     void pop(FrameInfo& sFrame);
-    FrameInfo* getLastFrame();
+    FrameInfo& getLastFrame();
 
     int size();
     void waitFrame();

@@ -11,9 +11,11 @@ public:
     ~PlaybackWindow();
 
     void createWindow(int width, int height);
-    void renderFrame(AVFrame* frame);
+    void renderFrame(const FrameInfo& sframe);
     void resizeWindow(int width, int height);
     void delay(int ms);
+    void renderBar(SDL_Renderer* renderer, double pos, int lengh);
+    void drawTimelineBackground(SDL_Renderer* renderer);
     void destroyWindow();
     bool isPaused();
     bool isHoldBar();
@@ -29,8 +31,6 @@ private:
     SDL_Rect m_timelinebar;
     SDL_Rect m_timelineprogress;
     std::atomic<bool> m_bIsPaused;
-    // int winWidth;
-    // int winHeight;
     SDL_Event event;
     std::thread eventThread;
     UtilsWindow utilsWindow;

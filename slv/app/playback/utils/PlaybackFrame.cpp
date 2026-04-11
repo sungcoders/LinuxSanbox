@@ -48,9 +48,9 @@ void PlaybackFrame::pop(FrameInfo& sFrame)
     cv.notify_one();
 }
 
-FrameInfo* PlaybackFrame::getLastFrame()
+FrameInfo& PlaybackFrame::getLastFrame()
 {
-    return &sLastFrame;
+    return sLastFrame;
 }
 
 int PlaybackFrame::size()

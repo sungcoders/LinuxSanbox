@@ -1,5 +1,4 @@
 #include "PlaybackDemux.h"
-#include "PlaybackWindow.h"
 
 PlaybackDemux::PlaybackDemux(std::shared_ptr<PlaybackDecodeVideo> decodeVideo, std::shared_ptr<PlaybackDecodeAudio> decodeAudio, std::shared_ptr<PlaybackClock> clock)
 : m_pCdecodeVideo(decodeVideo)
@@ -52,7 +51,6 @@ void PlaybackDemux::Init(const std::string& filename)
     m_idxaudioStream = av_find_best_stream(m_fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
     m_dVideoTimeBase = av_q2d(m_fmtCtx->streams[m_idxvideoStream]->time_base);
     m_dAudioTimeBase = av_q2d(m_fmtCtx->streams[m_idxaudioStream]->time_base);
-    LOGI("timebase video = {}", m_dVideoTimeBase);
 
     AVCodecParameters* codecParVideo = m_fmtCtx->streams[m_idxvideoStream]->codecpar;
     AVCodecParameters* codecParAudio = m_fmtCtx->streams[m_idxaudioStream]->codecpar;
@@ -70,6 +68,9 @@ void PlaybackDemux::Init(const std::string& filename)
     avcodec_open2(m_codecCtxAudio, codecAudio, nullptr);
 
     av_dump_format(m_fmtCtx, 0, filename.c_str(), 0);
+    
+    LOGE("lengh video {}",m_fmtCtx->duration / AV_TIME_BASE );
+    LOGE("Resolution: {}x{}", codecParVideo->width, codecParVideo->height);
 }
 
 void PlaybackDemux::Demux(void)
