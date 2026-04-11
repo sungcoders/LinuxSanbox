@@ -26,8 +26,8 @@ public:
 
     void start();
     void SetConfig();
-    void SetPlayInfo();
-    void PlayStart(std::string filename);
+    void SetPlayInfo(std::string filename);
+    void PlayStart();
     void Seek(int64_t position);
     void Pause();
     void Resume();
@@ -39,6 +39,7 @@ public:
 private:
     enum class PlaybackState
     {
+        PRE_INIT_E,
         INIT_E,
         PLAY_E,
         PAUSE_E,

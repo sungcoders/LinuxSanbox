@@ -59,7 +59,7 @@ void sample::thread2Data()
     while (!m_bExit.load())
     {
         LOGW("before waiting");
-        event.waitEvent();
+        event.waitEvent(-1);
         LOGW("after waiting");
     }
 }

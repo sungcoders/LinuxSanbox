@@ -16,7 +16,7 @@ public:
 
     void triggerEvent();
     void clearEvent();
-    void waitEvent();
+    void waitEvent(int timeoutms);
 
 private:
     int epoll_fd;

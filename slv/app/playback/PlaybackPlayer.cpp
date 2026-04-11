@@ -8,7 +8,7 @@ PlaybackPlayer::PlaybackPlayer()
 , m_pCdecodeAudio(nullptr)
 , m_pCFrameVideo(nullptr)
 , m_pCClock(nullptr)
-, m_ePlaybackState(PlaybackState::INIT_E)
+, m_ePlaybackState(PlaybackState::PRE_INIT_E)
 {
 }
 
@@ -30,8 +30,9 @@ void PlaybackPlayer::start()
         LOGE("Failed to start MediaPlayer");
         return;
     }
-    system("pwd");
-    PlayStart("/workspace/slv/app/playback/Media/mp4/video3.mp4");
+    // system("pwd");
+    SetPlayInfo("/workspace/slv/app/playback/Media/mp4/video3.mp4");
+    PlayStart();
 }
 
 void PlaybackPlayer::outPutView()
@@ -48,7 +49,7 @@ void PlaybackPlayer::outPutView()
         }
         FrameInfo sFrame = {};
         m_pCFrameVideo->pop(sFrame);
-        // LOGE("Display frame video: {:.3f}s", sFrame.timestamp);
+        // LOGE("video timstamp: {:.3f}s", sFrame.timestamp);
         win.renderFrame(sFrame.frame);
         win.delay(40);
         av_frame_free(&sFrame.frame);
@@ -76,9 +77,11 @@ void PlaybackPlayer::handleEvent()
     }
 }
 
-void PlaybackPlayer::SetPlayInfo()
+void PlaybackPlayer::SetPlayInfo(std::string filename)
 {
-    // Code để thiết lập thông tin phát video
+    m_pCdemux->Init(filename);
+    m_ePlaybackState.store(PlaybackState::INIT_E);
+    LOGD("PlaybackPlayer SetPlayInfo");
 }
 
 void PlaybackPlayer::SetConfig()
@@ -86,11 +89,10 @@ void PlaybackPlayer::SetConfig()
     // Code để thiết lập cấu hình phát video
 }
 
-void PlaybackPlayer::PlayStart(std::string filename)
+void PlaybackPlayer::PlayStart()
 {
-    m_ePlaybackState.store(PlaybackState::PLAY_E);
-    m_pCdemux->Init(filename);
     m_pCdemux->Start();
+    m_ePlaybackState.store(PlaybackState::PLAY_E);
     outPutThreadVideo = std::thread(&PlaybackPlayer::outPutView, this);
     LOGD("PlaybackPlayer started");
 }

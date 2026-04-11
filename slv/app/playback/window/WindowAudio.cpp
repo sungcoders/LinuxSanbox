@@ -1,6 +1,9 @@
 #include "WindowAudio.h"
 
-constexpr int BYTE_PER_SECOND = 44100 * 4; // 1 second of audio at 44100 Hz, 16-bit stereo
+constexpr int SAMPLES = 1024;
+constexpr int OUT_CHANNEL = 2;
+constexpr int OUT_SAMPLE_RATE = 44100;
+constexpr int BYTE_PER_SECOND = OUT_SAMPLE_RATE * 4; // 1 second of audio at 44100 Hz, 16-bit stereo
 
 WindowAudio::WindowAudio()
 : m_swrCtx(nullptr)
@@ -17,10 +20,10 @@ WindowAudio::~WindowAudio()
 void WindowAudio::getDeviceIDAudio()
 {
     SDL_AudioSpec spec = {};
-    spec.freq = 44100;
+    spec.freq = OUT_SAMPLE_RATE;
     spec.format = AUDIO_S16SYS;
-    spec.channels = 2;
-    spec.samples = 1024;
+    spec.channels = OUT_CHANNEL;
+    spec.samples = SAMPLES;
     spec.callback = nullptr;
 
     m_deviceID = SDL_OpenAudioDevice(nullptr, 0, &spec, nullptr, 0);
@@ -37,67 +40,44 @@ void WindowAudio::audioInit(AVCodecContext* codecCtx)
     SDL_Init(SDL_INIT_AUDIO);
     m_codecCtx = codecCtx;
     getDeviceIDAudio();
+    resampleAudio();
     LOGE("Audio device initialized with ID: {}", m_deviceID);
 }
 
 void WindowAudio::resampleAudio()
 {
-    // LOGE("Initializing audio resampling...");
-    uint64_t out_layout = AV_CH_LAYOUT_STEREO;
-    uint64_t in_layout  = m_codecCtx->channel_layout;
-    if (in_layout == 0) {
-        in_layout = av_get_default_channel_layout(m_codecCtx->channels);
-    }
-    // LOGE("Output channel layout: {} channels", out_layout.nb_channels);
     if(m_codecCtx == nullptr)
     {
         LOGE("Codec context is null, cannot initialize resampling");
         return;
     }
 
-    if (m_swrCtx) {
-        swr_free(&m_swrCtx);
-    }
-
-    // phải truyền pointer của m_swrCtx
     m_swrCtx = swr_alloc_set_opts(
         nullptr,
-        out_layout,
+        AV_CH_LAYOUT_STEREO,
         AV_SAMPLE_FMT_S16,
-        44100,
-        in_layout,
+        OUT_SAMPLE_RATE,
+        m_codecCtx->channel_layout,
         m_codecCtx->sample_fmt,
         m_codecCtx->sample_rate,
         0,
         nullptr
     );
 
-    // LOGE("swr_alloc_set_opts returned: {}", ret);
-    if (!m_swrCtx)
+    if (!m_swrCtx || swr_init(m_swrCtx) < 0)
     {
-        LOGE("swr_alloc_set_opts failed\n");
+        LOGE("m_swrCtx init failed\n");
         return;
     }
 
-    if (swr_init(m_swrCtx) < 0)
-    {
-        LOGE("swr_init failed\n");
-        return;
-    }
-
-    // LOGE("Audio resampling initialized successfully");
+    LOGD("Audio resampling initialized successfully");
 }
 
 void WindowAudio::sendFrameOutput(AVFrame* frame)
 {
-    resampleAudio();
-    int out_channels = 2;
-    int out_sample_rate = 44100;
-    AVSampleFormat out_fmt = AV_SAMPLE_FMT_S16;
-
     int out_nb_samples = av_rescale_rnd(
         swr_get_delay(m_swrCtx, frame->sample_rate) + frame->nb_samples,
-        out_sample_rate,
+        frame->sample_rate,
         frame->sample_rate,
         AV_ROUND_UP);
 
@@ -106,9 +86,9 @@ void WindowAudio::sendFrameOutput(AVFrame* frame)
 
     av_samples_alloc(&out_buffer,
                         &out_linesize,
-                        out_channels,
+                        OUT_CHANNEL,
                         out_nb_samples,
-                        out_fmt,
+                        AV_SAMPLE_FMT_S16,
                         0);
 
     int samples = swr_convert(
@@ -120,16 +100,36 @@ void WindowAudio::sendFrameOutput(AVFrame* frame)
 
     int data_size = av_samples_get_buffer_size(
         &out_linesize,
-        out_channels,
+        OUT_CHANNEL,
         samples,
-        out_fmt,
+        AV_SAMPLE_FMT_S16,
         1);
 
-    //  sample rate = 44100 samples / giây
-    // format = S16 (16-bit = 2 bytes)
-    // channels = 2 (stereo)
-    // => 1 sample frame = 2 bytes * 2 channels = 4 bytes
-    // 1s = 44100 sample frames * 4 bytes = 44100 * 4 bytes
+    /*
+        sample rate = 44100 samples / giây
+        format = S16 (16-bit = 2 bytes)
+        channels = 2 (stereo)
+        => 1 sample frame = 2 bytes * 2 channels = 4 bytes
+        1s = 44100 sample frames * 4 bytes = 44100 * 4 bytes
+        thời điểm đang phát thật = thời điểm đã nạp - phần chưa phát
+        m_audioCurPts = m_audioPts - queued_time;
+    */
+
+    // double pts = 0;
+    // if(frame->pts != AV_NOPTS_VALUE)
+    // {
+    //     pts = frame->pts * av_q2d(m_codecCtx->time_base);
+    // }
+    // // duration của frame audio
+    // double duration = (double)frame->nb_samples / frame->sample_rate;
+    // // update audioPts
+    // double m_audioPts = pts + duration;
+
+    // uint32_t queued = SDL_GetQueuedAudioSize(m_deviceID);
+    // double queued_time = (double)queued / BYTE_PER_SECOND;
+    // double m_audioCurPts = m_audioPts - queued_time;
+    // LOGW("audio timestamp [duration={:.3f}] {:.3f}s >< {:.3f}s", duration, pts, m_audioCurPts);
+
     while (SDL_GetQueuedAudioSize(m_deviceID) > BYTE_PER_SECOND)
     {
         SDL_Delay(10);

@@ -13,6 +13,7 @@ extern "C" {
 #include <SDL2/SDL.h>
 #include "PlaybackFrame.h"
 #include "UtilsLog.h"
+#include "UtilsEvent.h"
 
 class WindowAudio
 {

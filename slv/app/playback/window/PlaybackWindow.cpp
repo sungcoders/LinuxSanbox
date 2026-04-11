@@ -110,10 +110,10 @@ void PlaybackWindow::WindowEvent(SDL_Event& eventType)
 {
     while (SDL_PollEvent(&event))
     {
-        if(event.type != 1024)
-        {
-            LOGI("-------------------- Received event: {} --------------------", event.type);
-        }
+        // if(event.type != 1024)
+        // {
+        //     LOGI("-------------------- Received event: {} --------------------", event.type);
+        // }
 
         eventType = event;
         if(event.type == SDL_MOUSEBUTTONDOWN)
@@ -143,4 +143,5 @@ bool PlaybackWindow::isPaused()
 bool PlaybackWindow::isHoldBar()
 {
     // uitl time check time mouse is not in screen 100ms
+    return true;
 }

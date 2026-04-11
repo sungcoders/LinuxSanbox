@@ -41,9 +41,9 @@ void UtilsEvent::clearEvent()
     }
 }
 
-void UtilsEvent::waitEvent()
+void UtilsEvent::waitEvent(int timeoutms)
 {
-    int nfds = epoll_wait(epoll_fd, events, 1, -1); 
+    int nfds = epoll_wait(epoll_fd, events, 1, timeoutms); 
     for (int i = 0; i < nfds; i++)
     {
         int fd = events[i].data.fd;
