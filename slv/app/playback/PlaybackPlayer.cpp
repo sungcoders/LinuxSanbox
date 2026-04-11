@@ -100,6 +100,9 @@ void PlaybackPlayer::PlayStart()
 void PlaybackPlayer::Seek(int64_t position)
 {
     // Code để thực hiện seek đến vị trí mong muốn
+    m_pCClock->setPause();
+    m_pCdemux->SeekStream(position);
+    m_pCClock->setPlay();
 }
 
 void PlaybackPlayer::Pause()

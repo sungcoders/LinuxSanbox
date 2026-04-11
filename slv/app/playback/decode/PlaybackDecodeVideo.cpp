@@ -76,3 +76,9 @@ void PlaybackDecodeVideo::handleEnoughFrame()
 {
     m_pCFrame->waitFrame();
 }
+
+void PlaybackDecodeVideo::FlushRemainFrame()
+{
+    LOGE("Flush all frame video");
+    m_pCFrame->flushFrame();
+}

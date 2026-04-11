@@ -18,6 +18,7 @@ public:
 
     void Start();
     virtual void Decode() = 0;
+    virtual void FlushRemainFrame() = 0;
 
 protected:
     std::shared_ptr<PlaybackPacket> m_pCPacket;

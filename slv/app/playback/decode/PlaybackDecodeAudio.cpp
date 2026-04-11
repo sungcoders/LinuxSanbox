@@ -79,3 +79,9 @@ void PlaybackDecodeAudio::Decode()
     av_frame_free(&avframe);
     LOGE("Decoding audio process finished");
 }
+
+void PlaybackDecodeAudio::FlushRemainFrame()
+{
+    LOGE("Flush all frame audio");
+    m_pCFrame->flushFrame();
+}

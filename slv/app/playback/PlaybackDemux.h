@@ -18,6 +18,7 @@ public:
     void Init(const std::string& filename);
     void Start(void);
     void Stop(void);
+    void SeekStream(int64_t sec);
 
 private:
     std::atomic<bool> m_bExit;
@@ -28,6 +29,7 @@ private:
     int m_idxaudioStream;
     double m_dVideoTimeBase;
     double m_dAudioTimeBase;
+    std::atomic<bool> m_isSeek;
     std::shared_ptr<PlaybackPacket> m_pCpacketVideo;
     std::shared_ptr<PlaybackPacket> m_pCpacketAudio;
     std::shared_ptr<PlaybackDecodeVideo> m_pCdecodeVideo;

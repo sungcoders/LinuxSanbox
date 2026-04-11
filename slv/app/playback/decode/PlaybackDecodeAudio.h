@@ -13,6 +13,7 @@ public:
     void Init(AVCodecContext* codecCtx, double timebase, std::shared_ptr<PlaybackPacket> packet);
     void Stop();
     void Decode() override;
+    void FlushRemainFrame() override;
 
 private:
     std::atomic<bool> m_bExit;

@@ -13,6 +13,7 @@ PlaybackDemux::PlaybackDemux(std::shared_ptr<PlaybackDecodeVideo> decodeVideo, s
 , m_idxaudioStream(-1)
 , m_dVideoTimeBase(0.0)
 , m_dAudioTimeBase(0.0)
+, m_isSeek(false)
 , m_pCpacketVideo(nullptr)
 , m_pCpacketAudio(nullptr)
 {
@@ -51,6 +52,7 @@ void PlaybackDemux::Init(const std::string& filename)
     m_idxaudioStream = av_find_best_stream(m_fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
     m_dVideoTimeBase = av_q2d(m_fmtCtx->streams[m_idxvideoStream]->time_base);
     m_dAudioTimeBase = av_q2d(m_fmtCtx->streams[m_idxaudioStream]->time_base);
+    LOGI("timebase video = {}", m_dVideoTimeBase);
 
     AVCodecParameters* codecParVideo = m_fmtCtx->streams[m_idxvideoStream]->codecpar;
     AVCodecParameters* codecParAudio = m_fmtCtx->streams[m_idxaudioStream]->codecpar;
@@ -114,7 +116,14 @@ void PlaybackDemux::pushPacketAV(AVPacket* avpacket)
 
     if(avpacket->stream_index == m_idxvideoStream)
     {
-        // LOGD("push video {} packet: {:.3f}s size {}", (avpacket->flags & AV_PKT_FLAG_KEY ) ? "key" : "", m_dVideoTimeBase * avpacket->pts, m_pCpacketVideo->size());
+        if(m_isSeek.load() && avpacket->flags & AV_PKT_FLAG_KEY)
+        {
+            LOGD("push video {} packet: {:.3f}s size {}", (avpacket->flags & AV_PKT_FLAG_KEY ) ? "key" : "", m_dVideoTimeBase * avpacket->pts, m_pCpacketVideo->size());
+            m_pCpacketVideo->push(avpacket);
+            m_isSeek.store(false);
+            return;
+        }
+        // LOGD("push video packet: {:.3f}s", m_dVideoTimeBase * avpacket->pts);
         m_pCpacketVideo->push(avpacket);
     }
     else if(avpacket->stream_index == m_idxaudioStream)
@@ -138,4 +147,40 @@ void PlaybackDemux::handleEnoughPacket(AVPacket* avpacket)
     {
         m_pCpacketAudio->waitPacket();
     }
+}
+
+void PlaybackDemux::SeekStream(int64_t sec)
+{
+    int64_t targetSeek = (int64_t)(sec / m_dVideoTimeBase);
+
+    // Seek to pts
+    int ret = avformat_seek_file(
+        m_fmtCtx,
+        m_idxvideoStream,
+        INT64_MIN,
+        targetSeek,
+        INT64_MAX,
+        AVSEEK_FLAG_BACKWARD
+    );
+
+    if (ret < 0)
+    {
+        printf("Seek failed\n");
+        return;
+    }
+
+    m_isSeek.store(true);
+    // Flush decoder
+    avcodec_flush_buffers(m_codecCtxVideo);
+    avcodec_flush_buffers(m_codecCtxAudio);
+
+    // Flush packet queue
+    m_pCpacketVideo->abortPacket();
+    m_pCpacketAudio->abortPacket();
+
+    // Flush frame queue
+    m_pCdecodeVideo->FlushRemainFrame();
+    m_pCdecodeAudio->FlushRemainFrame();
+
+    LOGD("Seek to {} sec done\n", sec);
 }
