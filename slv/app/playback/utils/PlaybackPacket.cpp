@@ -52,7 +52,7 @@ void PlaybackPacket::waitPacket()
     std::unique_lock<std::mutex> lock(m_mutex);
     cv.wait(lock, [this]()
     {
-        return queue.size() < 10;
+        return queue.size() < 30;
     });
     return;
 }

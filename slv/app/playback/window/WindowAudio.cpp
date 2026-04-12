@@ -9,6 +9,7 @@ WindowAudio::WindowAudio()
 : m_swrCtx(nullptr)
 , m_codecCtx(nullptr)
 , m_deviceID(-1)
+, m_pClock(nullptr)
 {
 }
 
@@ -35,10 +36,11 @@ void WindowAudio::getDeviceIDAudio()
     SDL_PauseAudioDevice(m_deviceID, 0);
 }
 
-void WindowAudio::audioInit(AVCodecContext* codecCtx)
+void WindowAudio::audioInit(AVCodecContext* codecCtx, std::shared_ptr<PlaybackClock> clock)
 {
     SDL_Init(SDL_INIT_AUDIO);
     m_codecCtx = codecCtx;
+    m_pClock = clock;
     getDeviceIDAudio();
     resampleAudio();
     LOGE("Audio device initialized with ID: {}", m_deviceID);
@@ -73,12 +75,12 @@ void WindowAudio::resampleAudio()
     LOGD("Audio resampling initialized successfully");
 }
 
-void WindowAudio::sendFrameOutput(AVFrame* frame)
+void WindowAudio::sendFrameOutput(const FrameInfo& sframe)
 {
     int out_nb_samples = av_rescale_rnd(
-        swr_get_delay(m_swrCtx, frame->sample_rate) + frame->nb_samples,
-        frame->sample_rate,
-        frame->sample_rate,
+        swr_get_delay(m_swrCtx, sframe.frame->sample_rate) + sframe.frame->nb_samples,
+        sframe.frame->sample_rate,
+        sframe.frame->sample_rate,
         AV_ROUND_UP);
 
     uint8_t* out_buffer = nullptr;
@@ -95,8 +97,8 @@ void WindowAudio::sendFrameOutput(AVFrame* frame)
         m_swrCtx,
         &out_buffer,
         out_nb_samples,
-        (const uint8_t**)frame->data,
-        frame->nb_samples);
+        (const uint8_t**)sframe.frame->data,
+        sframe.frame->nb_samples);
 
     int data_size = av_samples_get_buffer_size(
         &out_linesize,
@@ -115,20 +117,13 @@ void WindowAudio::sendFrameOutput(AVFrame* frame)
         m_audioCurPts = m_audioPts - queued_time;
     */
 
-    // double pts = 0;
-    // if(frame->pts != AV_NOPTS_VALUE)
-    // {
-    //     pts = frame->pts * av_q2d(m_codecCtx->time_base);
-    // }
-    // // duration của frame audio
-    // double duration = (double)frame->nb_samples / frame->sample_rate;
-    // // update audioPts
-    // double m_audioPts = pts + duration;
-
-    // uint32_t queued = SDL_GetQueuedAudioSize(m_deviceID);
-    // double queued_time = (double)queued / BYTE_PER_SECOND;
-    // double m_audioCurPts = m_audioPts - queued_time;
-    // LOGW("audio timestamp [duration={:.3f}] {:.3f}s >< {:.3f}s", duration, pts, m_audioCurPts);
+    uint32_t queued = SDL_GetQueuedAudioSize(m_deviceID);                               // sample not output in queue
+    double duration = (double)sframe.frame->nb_samples / sframe.frame->sample_rate;     // duration frame output
+    double m_audioPts = sframe.timestamp + duration;                                    // current time + duration output = time output target
+    double queued_time = (double)queued / BYTE_PER_SECOND;                              // current time in queue not output
+    double m_audioCurPts = m_audioPts - queued_time;                                    // current time playing = time output target - current time in queue not output
+    // LOGW("audio timestamp [duration={:.3f}] {:.3f}s >< {:.3f}s queue:{}", duration, sframe.timestamp, m_audioCurPts, queued);
+    m_pClock->setClock(m_audioCurPts, true);
 
     while (SDL_GetQueuedAudioSize(m_deviceID) > BYTE_PER_SECOND)
     {
@@ -140,7 +135,6 @@ void WindowAudio::sendFrameOutput(AVFrame* frame)
     SDL_QueueAudio(m_deviceID, out_buffer, data_size);
 
     av_free(out_buffer);
-    // av_frame_free(&frame);
 }
 
 void WindowAudio::destroyAudio()

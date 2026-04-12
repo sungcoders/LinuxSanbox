@@ -55,10 +55,11 @@ void PlaybackPlayer::outPutView()
         m_pCFrameVideo->pop(sFrame);
         // LOGE("video timstamp: {:.3f}s", sFrame.timestamp);
         win.renderFrame(sFrame);
-        if(!m_bIsExit.load())
-        {
-            win.delay(40);
-        }
+        win.delay(m_pCClock->getDelayTime(sFrame.timestamp));
+        // if(!m_bIsExit.load())
+        // {
+        //     win.delay(40);
+        // }
         av_frame_free(&sFrame.frame);
     }
     win.destroyWindow();

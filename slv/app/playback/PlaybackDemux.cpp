@@ -129,7 +129,7 @@ void PlaybackDemux::pushPacketAV(AVPacket* avpacket)
             m_isSeek.store(false);
             return;
         }
-        // LOGD("push video packet: {:.3f}s", m_dVideoTimeBase * avpacket->pts);
+        // LOGD("push video packet: {:.3f}s size {}", m_dVideoTimeBase * avpacket->pts, m_pCpacketVideo->size());
         m_pCpacketVideo->push(avpacket);
     }
     else if(avpacket->stream_index == m_idxaudioStream)
