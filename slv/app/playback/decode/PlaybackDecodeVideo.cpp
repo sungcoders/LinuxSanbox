@@ -39,6 +39,7 @@ void PlaybackDecodeVideo::Decode()
         }
         FrameInfo sFrame = {};
         m_pCPacket->pop(avpacket);
+        // LOGD("pop video {} packet: {:.3f}s size {}", (avpacket->flags & AV_PKT_FLAG_KEY ) ? "key" : "", m_dTimebase * avpacket->pts, m_pCPacket->size());
         int ret = avcodec_send_packet(m_codecCtx, avpacket);
         if (ret < 0)
         {

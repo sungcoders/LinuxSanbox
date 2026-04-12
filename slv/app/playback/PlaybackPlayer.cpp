@@ -56,10 +56,6 @@ void PlaybackPlayer::outPutView()
         // LOGE("video timstamp: {:.3f}s", sFrame.timestamp);
         win.renderFrame(sFrame);
         win.delay(m_pCClock->getDelayTime(sFrame.timestamp));
-        // if(!m_bIsExit.load())
-        // {
-        //     win.delay(40);
-        // }
         av_frame_free(&sFrame.frame);
     }
     win.destroyWindow();
@@ -115,9 +111,7 @@ void PlaybackPlayer::PlayStart()
 
 void PlaybackPlayer::Seek(int64_t position)
 {
-    m_pCClock->setPause();
     m_pCdemux->SeekStream(position);
-    m_pCClock->setPlay();
 }
 
 void PlaybackPlayer::Pause()

@@ -92,7 +92,6 @@ void PlaybackDemux::Demux(void)
     {
         if(m_pCClock->isPaused())
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
         int ret = av_read_frame(m_fmtCtx, packet);
@@ -118,28 +117,30 @@ void PlaybackDemux::Demux(void)
 void PlaybackDemux::pushPacketAV(AVPacket* avpacket)
 {
     AVPacket* pkt = av_packet_alloc();
-    av_packet_ref(pkt, avpacket);
+    av_packet_ref(pkt, avpacket);       // add reference
 
-    if(avpacket->stream_index == m_idxvideoStream)
+    if(pkt->stream_index == m_idxvideoStream)
     {
-        if(m_isSeek.load() && avpacket->flags & AV_PKT_FLAG_KEY)
+        if(m_isSeek.load() && pkt->flags & AV_PKT_FLAG_KEY)
         {
-            LOGD("push video {} packet: {:.3f}s size {}", (avpacket->flags & AV_PKT_FLAG_KEY ) ? "key" : "", m_dVideoTimeBase * avpacket->pts, m_pCpacketVideo->size());
-            m_pCpacketVideo->push(avpacket);
+            // clean old packet before
+            m_pCpacketVideo->abortPacket();
+            // LOGD("push video {} packet: {:.3f}s size {}", (pkt->flags & AV_PKT_FLAG_KEY ) ? "key" : "", m_dVideoTimeBase * pkt->pts, m_pCpacketVideo->size());
+            m_pCpacketVideo->push(pkt);
             m_isSeek.store(false);
             return;
         }
-        // LOGD("push video packet: {:.3f}s size {}", m_dVideoTimeBase * avpacket->pts, m_pCpacketVideo->size());
-        m_pCpacketVideo->push(avpacket);
+        // LOGD("push video packet: {:.3f}s size {}", m_dVideoTimeBase * pkt->pts, m_pCpacketVideo->size());
+        m_pCpacketVideo->push(pkt);
     }
-    else if(avpacket->stream_index == m_idxaudioStream)
+    else if(pkt->stream_index == m_idxaudioStream)
     {
-        // LOGD("push audio packet: {:.3f}s size {}", m_dAudioTimeBase * avpacket->pts, m_pCpacketAudio->size());
-        m_pCpacketAudio->push(avpacket);
+        // LOGW("push audio packet: {:.3f}s size {}", m_dAudioTimeBase * pkt->pts, m_pCpacketAudio->size());
+        m_pCpacketAudio->push(pkt);
     }
     else
     {
-        LOGD("Unknown stream index: {} type {}", avpacket->stream_index, static_cast<int>(m_fmtCtx->streams[avpacket->stream_index]->codecpar->codec_type));
+        LOGD("Unknown stream index: {} type {}", pkt->stream_index, static_cast<int>(m_fmtCtx->streams[pkt->stream_index]->codecpar->codec_type));
     }
 }
 
@@ -157,6 +158,9 @@ void PlaybackDemux::handleEnoughPacket(AVPacket* avpacket)
 
 void PlaybackDemux::SeekStream(int64_t sec)
 {
+    // Pause before seeking
+    m_pCClock->setPause();
+
     int64_t targetSeek = (int64_t)(sec / m_dVideoTimeBase);
 
     // Seek to pts
@@ -175,18 +179,23 @@ void PlaybackDemux::SeekStream(int64_t sec)
         return;
     }
 
+    // Flag seek
     m_isSeek.store(true);
-    // Flush decoder
-    avcodec_flush_buffers(m_codecCtxVideo);
-    avcodec_flush_buffers(m_codecCtxAudio);
+
+    // Flush frame queue
+    m_pCdecodeVideo->FlushRemainFrame();
+    m_pCdecodeAudio->FlushRemainFrame();
 
     // Flush packet queue
     m_pCpacketVideo->abortPacket();
     m_pCpacketAudio->abortPacket();
 
-    // Flush frame queue
-    m_pCdecodeVideo->FlushRemainFrame();
-    m_pCdecodeAudio->FlushRemainFrame();
+    // Flush decoder
+    avcodec_flush_buffers(m_codecCtxVideo);
+    avcodec_flush_buffers(m_codecCtxAudio);
+
+    // comeback play after seeking
+    m_pCClock->setPlay();
 
     LOGD("Seek to {} sec done\n", sec);
 }

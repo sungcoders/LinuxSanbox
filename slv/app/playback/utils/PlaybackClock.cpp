@@ -76,6 +76,6 @@ int PlaybackClock::getDelayTime(double timestamp)
         }
     }
     
-    LOGD("{:.3f} - {:.3f} = {:.3f} ({}s)", timestamp, audio_clock, diff, delay);
+    // LOGD("{:.3f} - {:.3f} = {:.3f} ({}s)", timestamp, audio_clock, diff, delay);
     return delay;
 }
