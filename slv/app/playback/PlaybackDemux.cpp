@@ -69,7 +69,8 @@ void PlaybackDemux::Init(const std::string& filename)
 
     av_dump_format(m_fmtCtx, 0, filename.c_str(), 0);
     
-    PlaybackInfo sInfo{
+    PlaybackInfo sInfo
+    {
         m_fmtCtx->duration / AV_TIME_BASE,
         codecParVideo->width,
         codecParVideo->height

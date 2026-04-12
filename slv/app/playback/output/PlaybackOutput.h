@@ -15,8 +15,6 @@ public:
     virtual void Output() = 0;
 
 protected:
-    PlaybackWindow win;
-    std::shared_ptr<PlaybackFrame> m_pCFrame = std::make_shared<PlaybackFrame>();
     std::thread outputThread;
 
 };

@@ -36,6 +36,8 @@ private:
     std::atomic<bool> m_bIsPaused;
     std::atomic<int> m_iTimeSeek;
     std::atomic<int> m_iLengthVideo;
+    std::atomic<int> m_iScreenW;
+    std::atomic<int> m_iScreenH;
     SDL_Event event;
     std::thread eventThread;
     UtilsWindow utilsWindow;

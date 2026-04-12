@@ -6,13 +6,13 @@ PlaybackWindow::PlaybackWindow()
 , texture(nullptr)
 , m_bIsPaused(false)
 , m_iTimeSeek(-1)
+, m_iScreenW(0)
+, m_iScreenH(0)
 {
 }
 
 PlaybackWindow::~PlaybackWindow()
 {
-    LOGI("Destroying PlaybackWindow...\n");
-    destroyWindow();
 }
 
 void PlaybackWindow::createWindow(int width, int height)
@@ -36,6 +36,8 @@ void PlaybackWindow::createWindow(int width, int height)
         width,
         height
     );
+    m_iScreenW.store(width);
+    m_iScreenH.store(height);
 }
 
 void PlaybackWindow::resizeWindow(int width, int height)
@@ -43,6 +45,8 @@ void PlaybackWindow::resizeWindow(int width, int height)
     if (window)
     {
         SDL_SetWindowSize(window, width, height);
+        m_iScreenW.store(width);
+        m_iScreenH.store(height);
     }
 }
 
@@ -146,13 +150,10 @@ void PlaybackWindow::renderBar(SDL_Renderer* renderer, double pos, int lengh)
 
 void PlaybackWindow::drawTimelineBackground(SDL_Renderer* renderer)
 {
-    int screenW, screenH;
-    SDL_GetWindowSize(window, &screenW, &screenH);
-
-    m_panel.x = 0.021 * screenW;  // 2% left/right
-    m_panel.y = 0.949 * screenH;  // 95% top top/bottom
-    m_panel.w = 0.958 * screenW;  // 95% width screen
-    m_panel.h = 0.046 * screenH;  // 5% height screen
+    m_panel.x = 0.021 * m_iScreenW.load();  // 2% left/right
+    m_panel.y = 0.949 * m_iScreenH.load();  // 95% top top/bottom
+    m_panel.w = 0.958 * m_iScreenW.load();  // 95% width screen
+    m_panel.h = 0.046 * m_iScreenH.load();  // 5% height screen
     // old design with screen 1920x1080
     // SDL_Rect panel = {40, 1025, 1840, 50};
 
@@ -186,17 +187,13 @@ void PlaybackWindow::destroyWindow()
         window = nullptr;
     }
     SDL_Quit();
+    LOGE("Destroy window video");
 }
 
 void PlaybackWindow::WindowEvent(SDL_Event& eventType)
 {
     while (SDL_PollEvent(&event))
     {
-        // if(event.type != 1024)
-        // {
-        //     LOGI("-------------------- Received event: {} --------------------", event.type);
-        // }
-
         eventType = event;
         if(event.type == SDL_MOUSEBUTTONDOWN)
         {
@@ -213,6 +210,13 @@ void PlaybackWindow::WindowEvent(SDL_Event& eventType)
                 m_iTimeSeek.store(sec);
                 LOGI("bar timeline clicked x:{}, y:{}, lenght={}, sec={}", event.button.x, event.button.y, length, sec);
             }
+        }
+        else if(event.window.event == SDL_WINDOWEVENT_RESIZED)
+        {
+            int screenW, screenH;
+            SDL_GetWindowSize(window, &screenW, &screenH);
+            m_iScreenW.store(screenW);
+            m_iScreenH.store(screenH);
         }
         // if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
         // {
@@ -232,8 +236,11 @@ bool PlaybackWindow::isPaused()
 
 bool PlaybackWindow::isHoldBar()
 {
-    // uitl time check time mouse is not in screen 100ms
-    return true;
+    // until mouse is not in screen
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    return !(mouseX == 0 || mouseX == m_iScreenW.load() -1 ||
+            mouseY == 0 || mouseY == m_iScreenH.load() -1);
 }
 
 int PlaybackWindow::getTimeSeek()

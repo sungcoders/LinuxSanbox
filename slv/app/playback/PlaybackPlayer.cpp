@@ -55,9 +55,13 @@ void PlaybackPlayer::outPutView()
         m_pCFrameVideo->pop(sFrame);
         // LOGE("video timstamp: {:.3f}s", sFrame.timestamp);
         win.renderFrame(sFrame);
-        win.delay(40);
+        if(!m_bIsExit.load())
+        {
+            win.delay(40);
+        }
         av_frame_free(&sFrame.frame);
     }
+    win.destroyWindow();
     LOGE("Outputing process finished");
 }
 
@@ -110,7 +114,6 @@ void PlaybackPlayer::PlayStart()
 
 void PlaybackPlayer::Seek(int64_t position)
 {
-    // Code để thực hiện seek đến vị trí mong muốn
     m_pCClock->setPause();
     m_pCdemux->SeekStream(position);
     m_pCClock->setPlay();
@@ -134,7 +137,6 @@ void PlaybackPlayer::PlayStop()
 {
     m_ePlaybackState.store(PlaybackState::STOP_E);
     m_pCdemux->Stop();
-    win.destroyWindow();
     m_bIsExit.store(true);
 }
 

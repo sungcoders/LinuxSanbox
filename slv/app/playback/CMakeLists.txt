@@ -30,7 +30,6 @@ set(SOURCES
     decode/PlaybackDecodeVideo.cpp
     output/PlaybackOutput.cpp
     output/PlaybackOutputAudio.cpp
-    output/PlaybackOutputVideo.cpp
     utils/PlaybackPacket.cpp
     utils/PlaybackFrame.cpp
     utils/PlaybackClock.cpp

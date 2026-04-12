@@ -3,7 +3,6 @@
 
 #include "PlaybackDecode.h"
 #include "PlaybackWindow.h"
-#include "PlaybackOutputVideo.h"
 
 class PlaybackDecodeVideo : public PlaybackDecode
 {
