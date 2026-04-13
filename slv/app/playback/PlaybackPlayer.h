@@ -16,6 +16,7 @@ extern "C" {
 #include "PlaybackDecodeVideo.h"
 #include "PlaybackWindow.h"
 #include "WindowAudio.h"
+#include "PlaybackDefine.h"
 
 class PlaybackPlayer
 {
@@ -23,36 +24,27 @@ public:
     PlaybackPlayer();
     ~PlaybackPlayer();
 
-    void start();
-    void SetConfig();
-    void SetPlayInfo(std::string filename);
-    void PlayStart();
-    void Seek(int64_t position);
-    void Pause();
-    void Resume();
-    void PlayStop();
+    void start(void);
+    void SetConfig(void);
+    void SetPlayInfo(const std::string& filename, const Playbackdef::PlaybackType& eType);
+    void PlayStart(void);
+    void Seek(const int64_t& position);
+    void Pause(void);
+    void Resume(void);
+    void PlayStop(void);
 
-    void outPutView();
-    void handleEvent();
+    void outPutView(void);
+    void handleEvent(void);
 
 private:
-    enum class PlaybackState
-    {
-        PRE_INIT_E,
-        INIT_E,
-        PLAY_E,
-        PAUSE_E,
-        STOP_E,
-        COMPLETED_E
-    };
-
     std::atomic<bool> m_bIsExit;
     std::unique_ptr<PlaybackDemux> m_pCdemux;
     std::shared_ptr<PlaybackDecodeVideo> m_pCdecodeVideo;
     std::shared_ptr<PlaybackDecodeAudio> m_pCdecodeAudio;
     std::shared_ptr<PlaybackFrame> m_pCFrameVideo;
     std::shared_ptr<PlaybackClock> m_pCClock;
-    std::atomic<PlaybackState> m_ePlaybackState;
+    std::atomic<Playbackdef::PlaybackState> m_ePlaybackState;
+    std::atomic<Playbackdef::PlaybackType> m_ePlaybackType;
     std::thread inputThread;
     std::thread outPutThreadVideo;
     PlaybackWindow win;

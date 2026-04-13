@@ -8,7 +8,7 @@ PlaybackPlayer::PlaybackPlayer()
 , m_pCdecodeAudio(nullptr)
 , m_pCFrameVideo(nullptr)
 , m_pCClock(nullptr)
-, m_ePlaybackState(PlaybackState::PRE_INIT_E)
+, m_ePlaybackState(Playbackdef::PlaybackState::PRE_INIT_E)
 {
 }
 
@@ -17,7 +17,7 @@ PlaybackPlayer::~PlaybackPlayer()
     outPutThreadVideo.join();
 }
 
-void PlaybackPlayer::start()
+void PlaybackPlayer::start(void)
 {
     m_pCFrameVideo = std::make_shared<PlaybackFrame>();
     m_pCClock = std::make_shared<PlaybackClock>();
@@ -31,11 +31,11 @@ void PlaybackPlayer::start()
         return;
     }
     // system("pwd");
-    SetPlayInfo("/workspace/slv/app/playback/Media/mp4/video3.mp4");
+    SetPlayInfo("/workspace/slv/app/playback/Media/mp4/video3.mp4", Playbackdef::PlaybackType::FILE_PLAY);
     PlayStart();
 }
 
-void PlaybackPlayer::outPutView()
+void PlaybackPlayer::outPutView(void)
 {
     PlaybackInfo sInfo{};
     m_pCClock->getPlaybackInfo(sInfo);
@@ -62,7 +62,7 @@ void PlaybackPlayer::outPutView()
     LOGE("Outputing process finished");
 }
 
-void PlaybackPlayer::handleEvent()
+void PlaybackPlayer::handleEvent(void)
 {
     SDL_Event event;
     win.WindowEvent(event);
@@ -89,48 +89,61 @@ void PlaybackPlayer::handleEvent()
     }
 }
 
-void PlaybackPlayer::SetPlayInfo(std::string filename)
+void PlaybackPlayer::SetPlayInfo(const std::string& filename, const Playbackdef::PlaybackType& eType)
 {
-    m_pCdemux->Init(filename);
-    m_ePlaybackState.store(PlaybackState::INIT_E);
+    switch (eType)
+    {
+    case Playbackdef::PlaybackType::FILE_PLAY:
+        m_pCdemux->Init(filename);
+        break;
+    case Playbackdef::PlaybackType::STREAM_FILE:
+        // In progress
+        break;
+    case Playbackdef::PlaybackType::STREAM_LIVE:
+        // Out of scope
+        break;
+    default:
+        break;
+    }
+    m_ePlaybackState.store(Playbackdef::PlaybackState::INIT_E);
     LOGD("PlaybackPlayer SetPlayInfo");
 }
 
-void PlaybackPlayer::SetConfig()
+void PlaybackPlayer::SetConfig(void)
 {
     // Code để thiết lập cấu hình phát video
 }
 
-void PlaybackPlayer::PlayStart()
+void PlaybackPlayer::PlayStart(void)
 {
     m_pCdemux->Start();
-    m_ePlaybackState.store(PlaybackState::PLAY_E);
+    m_ePlaybackState.store(Playbackdef::PlaybackState::PLAY_E);
     outPutThreadVideo = std::thread(&PlaybackPlayer::outPutView, this);
     LOGD("PlaybackPlayer started");
 }
 
-void PlaybackPlayer::Seek(int64_t position)
+void PlaybackPlayer::Seek(const int64_t& position)
 {
     m_pCdemux->SeekStream(position);
 }
 
-void PlaybackPlayer::Pause()
+void PlaybackPlayer::Pause(void)
 {
-    m_ePlaybackState.store(PlaybackState::PAUSE_E);
+    m_ePlaybackState.store(Playbackdef::PlaybackState::PAUSE_E);
     m_pCClock->setPause();
     LOGD("PlaybackPlayer paused");
 }
 
-void PlaybackPlayer::Resume()
+void PlaybackPlayer::Resume(void)
 {
-    m_ePlaybackState.store(PlaybackState::PLAY_E);
+    m_ePlaybackState.store(Playbackdef::PlaybackState::PLAY_E);
     m_pCClock->setPlay();
     LOGD("PlaybackPlayer resumed");
 }
 
-void PlaybackPlayer::PlayStop()
+void PlaybackPlayer::PlayStop(void)
 {
-    m_ePlaybackState.store(PlaybackState::STOP_E);
+    m_ePlaybackState.store(Playbackdef::PlaybackState::STOP_E);
     m_pCdemux->Stop();
     m_bIsExit.store(true);
 }
