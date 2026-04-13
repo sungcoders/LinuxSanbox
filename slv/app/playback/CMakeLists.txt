@@ -36,6 +36,7 @@ set(SOURCES
     utils/UtilsWindow.cpp
     window/PlaybackWindow.cpp
     window/WindowAudio.cpp
+    stream/server/StreamServer.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

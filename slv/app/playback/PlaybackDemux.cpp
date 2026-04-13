@@ -38,8 +38,9 @@ void PlaybackDemux::Stop(void)
     m_bExit.store(true);
 }
 
-void PlaybackDemux::Init(const std::string& filename)
+void PlaybackDemux::Init(const std::string& filename, bool isAudioEnable, bool isStream)
 {
+    // note: isAudioEnable not enable audio, isStream not enable audio althought isAudioEnable enable
     avformat_network_init();
     if (avformat_open_input(&m_fmtCtx, filename.c_str(), nullptr, nullptr) != 0)
     {

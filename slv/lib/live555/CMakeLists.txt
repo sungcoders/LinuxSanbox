@@ -12,4 +12,6 @@ target_link_libraries(Live555 INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libgroupsock.a
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libBasicUsageEnvironment.a
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/libUsageEnvironment.a
+    ssl
+    crypto
 )

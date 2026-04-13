@@ -94,7 +94,7 @@ void PlaybackPlayer::SetPlayInfo(const std::string& filename, const Playbackdef:
     switch (eType)
     {
     case Playbackdef::PlaybackType::FILE_PLAY:
-        m_pCdemux->Init(filename);
+        m_pCdemux->Init(filename, true, false);
         break;
     case Playbackdef::PlaybackType::STREAM_FILE:
         // In progress

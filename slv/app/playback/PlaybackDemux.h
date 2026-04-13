@@ -15,7 +15,7 @@ public:
     PlaybackDemux(std::shared_ptr<PlaybackDecodeVideo> decodeVideo, std::shared_ptr<PlaybackDecodeAudio> decodeAudio, std::shared_ptr<PlaybackClock> clock);
     ~PlaybackDemux();
 
-    void Init(const std::string& filename);
+    void Init(const std::string& filename, bool isAudioEnable, bool isStream);
     void Start(void);
     void Stop(void);
     void SeekStream(int64_t sec);
