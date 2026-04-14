@@ -6,6 +6,7 @@
 #include <BasicUsageEnvironment.hh>
 #include "H264LiveServerMediaSubsession.h"
 #include "PlaybackDemux.h"
+#include "PlaybackPacket.h"
 
 class StreamServer
 {

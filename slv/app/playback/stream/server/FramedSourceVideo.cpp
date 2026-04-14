@@ -3,25 +3,33 @@
 void FramedSourceVideo::doGetNextFrame() {
     AVPacket pkt;
 
-    if (!m_queue->pop(pkt)) {
-        handleClosure();
-        return;
-    }
+    m_queue->pop(&pkt);
+    // Notify live555 out of data stream
+    // handleClosure();
+    // return;
 
     unsigned size = pkt.size;
 
-    if (size > fMaxSize) {
+    // only copy data with fMaxSize
+    if (size > fMaxSize)
+    {
         fFrameSize = fMaxSize;
         fNumTruncatedBytes = size - fMaxSize;
-    } else {
+    }
+    else
+    {
         fFrameSize = size;
     }
 
+    // copy data to buffer live555
     memcpy(fTo, pkt.data, fFrameSize);
 
+    // get current time
     gettimeofday(&fPresentationTime, NULL);
 
+    // done frame remove
     av_packet_unref(&pkt);
 
+    // Notify live555 done copy frame data
     FramedSource::afterGetting(this);
 }

@@ -2,16 +2,21 @@
 #include <liveMedia.hh>
 #include "PlaybackPacket.h"
 
-class FramedSourceVideo : public FramedSource {
+class FramedSourceVideo : public FramedSource
+{
 public:
-    static FramedSourceVideo* createNew(UsageEnvironment& env, PlaybackPacket* queue) {
+    static FramedSourceVideo* createNew(UsageEnvironment& env, PlaybackPacket* queue)
+    {
         return new FramedSourceVideo(env, queue);
     }
 
 protected:
     FramedSourceVideo(UsageEnvironment& env, PlaybackPacket* queue)
-        : FramedSource(env), m_queue(queue) {}
+        : FramedSource(env), m_queue(queue)
+    {
+    }
 
+    // callback get frame
     virtual void doGetNextFrame() override;
 
 private:

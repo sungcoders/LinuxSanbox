@@ -37,6 +37,7 @@ set(SOURCES
     window/PlaybackWindow.cpp
     window/WindowAudio.cpp
     stream/server/StreamServer.cpp
+    stream/server/FramedSourceVideo.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
