@@ -200,3 +200,13 @@ void PlaybackDemux::SeekStream(int64_t sec)
 
     LOGD("Seek to {} sec done\n", sec);
 }
+
+std::shared_ptr<PlaybackPacket> PlaybackDemux::getPacketAudio()
+{
+    return m_pCpacketAudio;
+}
+
+std::shared_ptr<PlaybackPacket> PlaybackDemux::getPacketVideo()
+{
+    return m_pCpacketVideo;
+}

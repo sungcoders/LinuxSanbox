@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y \
     libsdl2-dev \
     libfmt-dev \
     libssl-dev \
+    yasm \
+    nasm \
+    gdb \
     && rm -rf /var/lib/apt/lists/*
 
 # add user 'sunglv'

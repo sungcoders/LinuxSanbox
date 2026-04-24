@@ -9,6 +9,7 @@ PlaybackPlayer::PlaybackPlayer()
 , m_pCFrameVideo(nullptr)
 , m_pCClock(nullptr)
 , m_ePlaybackState(Playbackdef::PlaybackState::PRE_INIT_E)
+, m_pCServer(nullptr)
 {
 }
 
@@ -23,15 +24,18 @@ void PlaybackPlayer::start(void)
     m_pCClock = std::make_shared<PlaybackClock>();
     m_pCdecodeVideo = std::make_shared<PlaybackDecodeVideo>(m_pCFrameVideo, m_pCClock);
     m_pCdecodeAudio = std::make_shared<PlaybackDecodeAudio>(m_pCClock);
-    m_pCdemux = std::make_unique<PlaybackDemux>(m_pCdecodeVideo, m_pCdecodeAudio, m_pCClock);
+    m_pCdemux = std::make_shared<PlaybackDemux>(m_pCdecodeVideo, m_pCdecodeAudio, m_pCClock);
+    m_pCServer = std::make_shared<StreamServer>(m_pCdemux);
 
     if(m_pCdemux == nullptr || m_pCdecodeVideo == nullptr || m_pCFrameVideo == nullptr)
     {
         LOGE("Failed to start MediaPlayer");
         return;
     }
-    // system("pwd");
+    system("pwd");
     SetPlayInfo("/workspace/slv/app/playback/Media/mp4/video3.mp4", Playbackdef::PlaybackType::FILE_PLAY);
+    // SetPlayInfo("/workspace/slv/app/playback/Media/mp4/video3.mp4", Playbackdef::PlaybackType::STREAM_FILE);
+    // SetPlayInfo("/workspaces/LinuxSanbox/slv/app/playback/Media/mp4/video3.mp4", Playbackdef::PlaybackType::STREAM_FILE);
     PlayStart();
 }
 
@@ -98,6 +102,9 @@ void PlaybackPlayer::SetPlayInfo(const std::string& filename, const Playbackdef:
         break;
     case Playbackdef::PlaybackType::STREAM_FILE:
         // In progress
+        m_pCdemux->Init(filename, false, true);
+        m_pCServer->initServer();
+        m_pCServer->createServer();
         break;
     case Playbackdef::PlaybackType::STREAM_LIVE:
         // Out of scope

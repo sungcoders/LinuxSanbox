@@ -11,12 +11,18 @@
 class StreamServer
 {
 public:
-    StreamServer();
+    StreamServer(std::shared_ptr<PlaybackDemux> demuxer);
     ~StreamServer();
 
+    void initServer();
     void createServer(void);
 
-private:    
+private:
+    std::shared_ptr<PlaybackDemux> m_pCdemux;
+    std::shared_ptr<PlaybackPacket> m_pCpacketVideo;
+    TaskScheduler* scheduler;
+    UsageEnvironment* env;
+    RTSPServer* rtspServer;
 };
 
 #endif // STREAM_SERVER_H

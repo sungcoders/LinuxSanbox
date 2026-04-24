@@ -50,6 +50,7 @@ run_container() {
         -e SDL_AUDIODRIVER=pulseaudio \
         -e DISPLAY=$DISPLAY \
         -v /tmp/.X11-unix:/tmp/.X11-unix \
+        -p 8554:8554 \
         "$IMAGE_NAME" \
         /bin/bash
 }

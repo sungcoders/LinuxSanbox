@@ -52,6 +52,12 @@ void PlaybackWindow::resizeWindow(int width, int height)
 
 void PlaybackWindow::renderFrame(const FrameInfo& sframe)
 {
+    if(sframe.frame == nullptr || texture == nullptr)
+    {
+        LOGE("frame null");
+        return;
+    }
+
     SDL_UpdateYUVTexture(
         texture,
         NULL,

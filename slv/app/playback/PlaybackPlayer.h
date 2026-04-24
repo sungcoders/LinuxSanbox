@@ -17,6 +17,7 @@ extern "C" {
 #include "PlaybackWindow.h"
 #include "WindowAudio.h"
 #include "PlaybackDefine.h"
+#include "StreamServer.h"
 
 class PlaybackPlayer
 {
@@ -38,13 +39,14 @@ public:
 
 private:
     std::atomic<bool> m_bIsExit;
-    std::unique_ptr<PlaybackDemux> m_pCdemux;
+    std::shared_ptr<PlaybackDemux> m_pCdemux;
     std::shared_ptr<PlaybackDecodeVideo> m_pCdecodeVideo;
     std::shared_ptr<PlaybackDecodeAudio> m_pCdecodeAudio;
     std::shared_ptr<PlaybackFrame> m_pCFrameVideo;
     std::shared_ptr<PlaybackClock> m_pCClock;
     std::atomic<Playbackdef::PlaybackState> m_ePlaybackState;
     std::atomic<Playbackdef::PlaybackType> m_ePlaybackType;
+    std::shared_ptr<StreamServer> m_pCServer;
     std::thread inputThread;
     std::thread outPutThreadVideo;
     PlaybackWindow win;

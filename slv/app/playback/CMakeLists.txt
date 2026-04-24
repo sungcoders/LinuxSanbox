@@ -48,6 +48,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/decode
     ${CMAKE_CURRENT_SOURCE_DIR}/output
     ${CMAKE_CURRENT_SOURCE_DIR}/window
+    ${CMAKE_CURRENT_SOURCE_DIR}/stream/server
+    ${CMAKE_CURRENT_SOURCE_DIR}/stream/client
 )
 
 target_link_libraries(${PROJECT_NAME}

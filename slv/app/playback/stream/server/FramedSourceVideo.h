@@ -5,14 +5,14 @@
 class FramedSourceVideo : public FramedSource
 {
 public:
-    static FramedSourceVideo* createNew(UsageEnvironment& env, PlaybackPacket* queue)
+    static FramedSourceVideo* createNew(UsageEnvironment& env, std::shared_ptr<PlaybackPacket> packet)
     {
-        return new FramedSourceVideo(env, queue);
+        return new FramedSourceVideo(env, packet);
     }
 
 protected:
-    FramedSourceVideo(UsageEnvironment& env, PlaybackPacket* queue)
-        : FramedSource(env), m_queue(queue)
+    FramedSourceVideo(UsageEnvironment& env, std::shared_ptr<PlaybackPacket> packet)
+        : FramedSource(env), m_pCPacket(packet)
     {
     }
 
@@ -20,5 +20,5 @@ protected:
     virtual void doGetNextFrame() override;
 
 private:
-    PlaybackPacket* m_queue;
+    std::shared_ptr<PlaybackPacket> m_pCPacket;
 };

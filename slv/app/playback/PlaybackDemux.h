@@ -19,6 +19,8 @@ public:
     void Start(void);
     void Stop(void);
     void SeekStream(int64_t sec);
+    std::shared_ptr<PlaybackPacket> getPacketAudio();
+    std::shared_ptr<PlaybackPacket> getPacketVideo();
 
 private:
     std::atomic<bool> m_bExit;

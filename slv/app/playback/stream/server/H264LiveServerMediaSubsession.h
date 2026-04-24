@@ -7,19 +7,19 @@ class H264LiveServerMediaSubsession : public OnDemandServerMediaSubsession
 {
 public:
     // Static function return object
-    static H264LiveServerMediaSubsession* createNew(UsageEnvironment& env, PlaybackPacket* queue)
+    static H264LiveServerMediaSubsession* createNew(UsageEnvironment& env, std::shared_ptr<PlaybackPacket> packet)
     {
-        // Return object create with env and queue of H264LiveServerMediaSubsession
-        return new H264LiveServerMediaSubsession(env, queue);
+        // Return object create with env and queue packet of H264LiveServerMediaSubsession
+        return new H264LiveServerMediaSubsession(env, packet);
     }
 
 protected:
-    // reference queue to get packet
+    // reference queue packet to get packet
     // true: VLC A xem → có pipeline riêng
     // true: VLC B xem → có pipeline riêng
-    H264LiveServerMediaSubsession(UsageEnvironment& env, PlaybackPacket* queue)
+    H264LiveServerMediaSubsession(UsageEnvironment& env, std::shared_ptr<PlaybackPacket> packet)
         : OnDemandServerMediaSubsession(env, True)
-        , m_queue(queue)
+        , m_pCPacket(packet)
     {
     }
 
@@ -31,7 +31,7 @@ protected:
     virtual FramedSource* createNewStreamSource(unsigned, unsigned& estBitrate) override
     {
         estBitrate = 5000;
-        return H264VideoStreamFramer::createNew(envir(), FramedSourceVideo::createNew(envir(), m_queue));
+        return H264VideoStreamFramer::createNew(envir(), FramedSourceVideo::createNew(envir(), m_pCPacket));
     }
 
     // bộ gửi RTP
@@ -42,5 +42,5 @@ protected:
     }
 
 private:
-    PlaybackPacket* m_queue;
+    std::shared_ptr<PlaybackPacket> m_pCPacket;
 };
