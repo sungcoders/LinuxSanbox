@@ -1,0 +1,25 @@
+<mxfile host="65bd71144e">
+    <diagram id="HaY4VEPw-efdUpW44RHF" name="Page-1">
+        <mxGraphModel dx="1438" dy="709" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="4681" pageHeight="3300" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="Application" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="200" width="320" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="Utils" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="520" y="360" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="Linux" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="320" width="320" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="Lib&lt;br&gt;FFmpeg&lt;br&gt;Live555&lt;br&gt;SDL2" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="520" y="200" width="80" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="Hardware" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="380" width="320" height="60" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
