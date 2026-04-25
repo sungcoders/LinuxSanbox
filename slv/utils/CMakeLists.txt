@@ -4,6 +4,8 @@ add_library(utils SHARED
     src/UtilsLog.cpp
     src/UtilsEvent.cpp
     src/UtilsTick.cpp
+    src/UtilsSharemem.cpp
+    src/UtilsLock.cpp
 )
 
 # Export header
