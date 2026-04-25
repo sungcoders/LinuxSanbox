@@ -1,0 +1,8 @@
+
+#  Copyright (c) 2026-present, Sunglv. All rights reserved.
+#  Author: Sunglv
+#  This source code is licensed under the MIT license that can be found in the LICENSE file.
+#  Project: slv
+
+add_subdirectory(client)
+add_subdirectory(server)
